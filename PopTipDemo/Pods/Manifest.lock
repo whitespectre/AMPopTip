@@ -1,5 +1,5 @@
 PODS:
-  - AMPopTip (0.10.1)
+  - AMPopTip (1.1.1)
   - Expecta (1.0.5)
   - Expecta+Snapshots (2.0.0):
     - Expecta (~> 1.0)
@@ -17,14 +17,16 @@ DEPENDENCIES:
 
 EXTERNAL SOURCES:
   AMPopTip:
-    :path: "../"
+    :path: ../
 
 SPEC CHECKSUMS:
-  AMPopTip: b0b5d009f3ed47b10f118438a18e0ab5cd03c40d
+  AMPopTip: ce54203b547a74039bae192af5b011b13abd31b3
   Expecta: e1c022fcd33910b6be89c291d2775b3fe27a89fe
   Expecta+Snapshots: 29b38dd695bc72a0ed2bea833937d78df41943ba
   FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
   OCMock: 28def049ef47f996b515a8eeea958be7ccab2dbb
   Specta: ac94d110b865115fe60ff2c6d7281053c6f8e8a2
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 6747d9b8601a7b7fc42b507e3df81fbd44fd51e2
+
+COCOAPODS: 1.1.1

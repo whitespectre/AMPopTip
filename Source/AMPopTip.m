@@ -13,13 +13,13 @@
 #import "AMPopTip+Exit.h"
 #import "AMPopTip+Animation.h"
 
-@interface AMPopTip()
+@interface AMPopTip()<UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) NSString *text;
 @property (nonatomic, strong) NSAttributedString *attributedText;
 @property (nonatomic, strong) NSMutableParagraphStyle *paragraphStyle;
-@property (nonatomic, strong) UITapGestureRecognizer *gestureRecognizer;
-@property (nonatomic, strong) UITapGestureRecognizer *tapRemoveGesture;
+@property (nonatomic, strong) UITapGestureRecognizer *tapInGestureRecognizer;
+@property (nonatomic, strong) UITapGestureRecognizer *tapOutGestureRecognizer;
 @property (nonatomic, strong) UISwipeGestureRecognizer *swipeRemoveGesture;
 @property (nonatomic, strong) NSTimer *dismissTimer;
 @property (nonatomic, weak, readwrite) UIView *containerView;
@@ -91,8 +91,15 @@
     _actionAnimationIn = kDefaultBounceAnimationIn;
     _actionAnimationOut = kDefaultBounceAnimationOut;
     _bubbleOffset = kDefaultBubbleOffset;
-    _tapRemoveGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapRemoveGestureHandler)];
+    _tapOutGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapRemoveGestureHandler)];
+    _tapOutGestureRecognizer.enabled = YES;
+    
     _swipeRemoveGesture = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swipeRemoveGestureHandler)];
+    _swipeRemoveGesture.enabled = NO;
+
+    _tapInGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    _tapInGestureRecognizer.delegate = self;
+    [_tapInGestureRecognizer setCancelsTouchesInView:NO];
 }
 
 - (void)layoutSubviews {
@@ -274,9 +281,6 @@
         self.customView.frame = self.textBounds;
     }
     
-    self.gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
-    [self.gestureRecognizer setCancelsTouchesInView:NO];
-    [self addGestureRecognizer:self.gestureRecognizer];
     [self setNeedsDisplay];
 }
 
@@ -336,8 +340,10 @@
     [self setup];
     [self setNeedsLayout];
     [self performEntranceAnimation:^{
-        [self.containerView addGestureRecognizer:self.tapRemoveGesture];
-        [self.containerView addGestureRecognizer:self.swipeRemoveGesture];
+        
+        [self.window addGestureRecognizer:_tapInGestureRecognizer];
+        [self.containerView.window addGestureRecognizer:self.tapOutGestureRecognizer];
+        [self.containerView.window addGestureRecognizer:self.swipeRemoveGesture];
         if (self.appearHandler) {
             self.appearHandler();
         }
@@ -440,8 +446,10 @@
     self.isAnimating = YES;
     [self.dismissTimer invalidate];
     self.dismissTimer = nil;
-    [self.containerView removeGestureRecognizer:self.tapRemoveGesture];
-    [self.containerView removeGestureRecognizer:self.swipeRemoveGesture];
+
+    [self.tapInGestureRecognizer.view removeGestureRecognizer:self.tapInGestureRecognizer];
+    [self.tapOutGestureRecognizer.view removeGestureRecognizer:self.tapOutGestureRecognizer];
+    [self.swipeRemoveGesture.view removeGestureRecognizer:self.swipeRemoveGesture];
 
     void (^completion)() = ^{
         [self.customView removeFromSuperview];
@@ -485,7 +493,7 @@
 
 - (void)setShouldDismissOnTapOutside:(BOOL)shouldDismissOnTapOutside {
     _shouldDismissOnTapOutside = shouldDismissOnTapOutside;
-    _tapRemoveGesture.enabled = shouldDismissOnTapOutside;
+    _tapOutGestureRecognizer.enabled = shouldDismissOnTapOutside;
 }
 
 - (void)setShouldDismissOnSwipeOutside:(BOOL)shouldDismissOnSwipeOutside {
@@ -498,12 +506,48 @@
     _swipeRemoveGesture.direction = swipeRemoveGestureDirection;
 }
 
+-(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UIView *view = [super hitTest:point withEvent:event];
+    
+    return view;
+}
+
+-(BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event
+{
+    BOOL inside = [super pointInside:point withEvent:event];
+    return inside;
+}
+
 - (void)dealloc {
-    [_tapRemoveGesture removeTarget:self action:@selector(tapRemoveGestureHandler)];
-    _tapRemoveGesture = nil;
+    
+    [_tapInGestureRecognizer removeTarget:self action:@selector(handleTap:)];
+    _tapInGestureRecognizer = nil;
+    
+    [_tapOutGestureRecognizer removeTarget:self action:@selector(tapRemoveGestureHandler)];
+    _tapOutGestureRecognizer = nil;
 
     [_swipeRemoveGesture removeTarget:self action:@selector(swipeRemoveGestureHandler)];
     _swipeRemoveGesture = nil;
+}
+
+#pragma mark - Gesture Delegates
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if (gestureRecognizer == self.tapInGestureRecognizer)
+    {
+        //Get touch location in self
+        CGPoint point = [touch locationInView:self];
+        
+        //If it's within the bounds then it should receive touches otherwise not.
+        BOOL shouldReceiveTouch = CGRectContainsPoint(self.bounds, point);
+        return shouldReceiveTouch;
+    }
+    else
+    {
+        return NO;
+    }
 }
 
 @end
