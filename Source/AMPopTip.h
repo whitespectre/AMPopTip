@@ -394,25 +394,21 @@ typedef NS_ENUM(NSInteger, AMPopTipActionAnimation) {
  * A boolean value that determines whether the poptip is dismissed on tap.
  */
 @property (nonatomic, assign) BOOL shouldDismissOnTap;
+@property (nonatomic, strong, readonly) UITapGestureRecognizer *tapInGestureRecognizer;
 
 /** Dismiss on tap outside
  *
  * A boolean value that determines whether to dismiss when tapping outside the popover.
  */
 @property (nonatomic, assign) BOOL shouldDismissOnTapOutside;
+@property (nonatomic, strong, readonly) UITapGestureRecognizer *tapOutGestureRecognizer;
 
 /** Dismiss on swipe outside
 *
 * A boolean value that determines whether to dismiss when swiping outside the popover.
 */
 @property (nonatomic, assign) BOOL shouldDismissOnSwipeOutside;
-
-/** Direction to dismiss on swipe outside
-*
-* A direction that determines what swipe direction to dismiss when swiping outside the popover.
-* The default direction is UISwipeGestureRecognizerDirectionRight if this is not set.
-*/
-@property (nonatomic, assign) UISwipeGestureRecognizerDirection swipeRemoveGestureDirection;
+@property (nonatomic, strong, readonly) UISwipeGestureRecognizer *swipeRemoveGesture;
 
 /** Tap handler
  *

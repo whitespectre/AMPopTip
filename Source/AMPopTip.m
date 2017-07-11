@@ -18,9 +18,6 @@
 @property (nonatomic, strong) NSString *text;
 @property (nonatomic, strong) NSAttributedString *attributedText;
 @property (nonatomic, strong) NSMutableParagraphStyle *paragraphStyle;
-@property (nonatomic, strong) UITapGestureRecognizer *tapInGestureRecognizer;
-@property (nonatomic, strong) UITapGestureRecognizer *tapOutGestureRecognizer;
-@property (nonatomic, strong) UISwipeGestureRecognizer *swipeRemoveGesture;
 @property (nonatomic, strong) NSTimer *dismissTimer;
 @property (nonatomic, weak, readwrite) UIView *containerView;
 @property (nonatomic, assign, readwrite) AMPopTipDirection direction;
@@ -499,11 +496,6 @@
 - (void)setShouldDismissOnSwipeOutside:(BOOL)shouldDismissOnSwipeOutside {
     _shouldDismissOnSwipeOutside = shouldDismissOnSwipeOutside;
     _swipeRemoveGesture.enabled = shouldDismissOnSwipeOutside;
-}
-
-- (void)setSwipeRemoveGestureDirection:(UISwipeGestureRecognizerDirection)swipeRemoveGestureDirection {
-    _swipeRemoveGestureDirection = swipeRemoveGestureDirection;
-    _swipeRemoveGesture.direction = swipeRemoveGestureDirection;
 }
 
 -(UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
